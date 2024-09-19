@@ -1,17 +1,21 @@
+# Escape - A Python Adventure 
+# by Sean McManus / www.sean.co.uk
+# Typed in by PUT YOUR NAME HERE
+
 import time, random, math
 
 ###############
 ## VARIABLES ##
 ###############
 
-WIDTH = 800
+WIDTH = 800 #window size
 HEIGHT = 800
 
-# PLAYER variable
-PLAYER_NAME = "Jordan"
-FRIEND1_NAME = "Ben"
-FRIEND2_NAME = "Nick"
-current_room = 31
+#PLAYER variables
+PLAYER_NAME = "Jordan" # change this to your name!
+FRIEND1_NAME = "Ben" # change this to a friend's name!
+FRIEND2_NAME = "Nick" # change this to another friend's name!
+current_room = 31 # start room = 31
 
 top_left_x = 100
 top_left_y = 150
@@ -20,52 +24,55 @@ DEMO_OBJECTS = [images.floor, images.pillar, images.soil]
 
 LANDER_SECTOR = random.randint(1, 24)
 LANDER_X = random.randint(2, 11)
-LANDER_Y = random.randint(2, 11) 
+LANDER_Y = random.randint(2, 11)
+
 
 ###############
 ##    MAP    ##
-###############
+###############  
 
 MAP_WIDTH = 5
-MAP_HEIGHT = 10
+MAP_HEIGHT = 10 
 MAP_SIZE = MAP_WIDTH * MAP_HEIGHT
 
-GAME_MAP = [ ["Room 0 - where unused ojects are kept", 0, 0, False, False] ]
+GAME_MAP = [ ["Room 0 - where unused objects are kept", 0, 0, False, False] ]
 
 outdoor_rooms = range(1, 26)
-for planetsectors in range(1, 26):
-    GAME_MAP.append(["The dusty palnet surface", 13, 13, True, True])
+for planetsectors in range(1, 26): #rooms 1 to 25 are generated here
+    GAME_MAP.append( ["The dusty planet surface", 13, 13, True, True] )
 
-GAME_MAP += [
+GAME_MAP  += [
         #["Room name", height, width, Top exit?, Right exit?]
-        ["The airlock", 13, 5, True, False],
-        ["The engineering lab", 13, 13, False, False],
-        ["Poodle Mission Control", 9, 13, False, True],
-        ["The viewing gallery", 9, 15, False, False],
-        ["The crew's bathroom", 5, 5, False, False],
-        ["The airlock entry bay", 7, 11, True, True],
-        ["Left elbow room", 9, 7, True, False],
-        ["Right elbow room", 7, 13, True, True],
-        ["The science lab", 13, 13, False, True],
-        ["The greenhouse", 13, 13, True, False],
-        [PLAYER_NAME + "'s sleeping quarters", 9, 11, False, False],
-        ["West corridor", 15, 5, True, True],
-        ["The briefing room", 7, 13, False, True],
-        ["The crew's community room", 11, 13, True, False],
-        ["Main Mission Control", 14, 14, False, False],
-        ["The sick bay", 12, 7, True, False],
-        ["West corridor", 9, 7, True, False],
-        ["Utilities control room", 9, 9, False, True],
-        ["Systems engineering bay", 9, 11, False, False],
-        ["Security portal to Mission Control", 7, 7, True, False],
-        [FRIEND1_NAME + "'s sleeping quarters", 9, 11, True, True],
-        [FRIEND2_NAME + "'s sleeping quarters", 9, 11, True, True],
-        ["The pipeworks", 13, 11, True, False],
-        ["The chief scientist's office", 9, 7, True, True],
-        ["The robot workshop", 9, 11, True, False]
+        ["The airlock", 13, 5, True, False], # room 26
+        ["The engineering lab", 13, 13, False, False], # room 27
+        ["Poodle Mission Control", 9, 13, False, True], # room 28
+        ["The viewing gallery", 9, 15, False, False], # room 29
+        ["The crew's bathroom", 5, 5, False, False], # room 30
+        ["The airlock entry bay", 7, 11, True, True], # room 31
+        ["Left elbow room", 9, 7, True, False], # room 32
+        ["Right elbow room", 7, 13, True, True], # room 33
+        ["The science lab", 13, 13, False, True], # room 34
+        ["The greenhouse", 13, 13, True, False], # room 35
+        [PLAYER_NAME + "'s sleeping quarters", 9, 11, False, False], # room 36
+        ["West corridor", 15, 5, True, True], # room 37
+        ["The briefing room", 7, 13, False, True], # room 38
+        ["The crew's community room", 11, 13, True, False], # room 39
+        ["Main Mission Control", 14, 14, False, False], # room 40
+        ["The sick bay", 12, 7, True, False], # room 41
+        ["West corridor", 9, 7, True, False], # room 42
+        ["Utilities control room", 9, 9, False, True], # room 43
+        ["Systems engineering bay", 9, 11, False, False], # room 44
+        ["Security portal to Mission Control", 7, 7, True, False], # room 45
+        [FRIEND1_NAME + "'s sleeping quarters", 9, 11, True, True], # room 46
+        [FRIEND2_NAME + "'s sleeping quarters", 9, 11, True, True], # room 47
+        ["The pipeworks", 13, 11, True, False], # room 48
+        ["The chief scientist's office", 9, 7, True, True], # room 49
+        ["The robot workshop", 9, 11, True, False] # room 50
         ]
 
+#simple sanity check on map above to check data entry
 assert len(GAME_MAP)-1 == MAP_SIZE, "Map size and GAME_MAP don't match"
+
 
 ###############
 ##  OBJECTS  ##
@@ -219,7 +226,84 @@ anything. Can you sharpen them?", "blunt scissors"],
     }
 
 items_player_may_carry = list(range(53, 82))
+# Numbers below are for floor, pressure pad, soil, toxic floor.
 items_player_may_stand_on = items_player_may_carry + [0, 39, 2, 48]
+
+
+###############
+##  SCENERY  ##
+###############
+
+# Scenery describes objects that cannot move between rooms.
+# room number: [[object number, y position, x position]...]
+scenery = {
+    26: [[39,8,2]],
+    27: [[33,5,5], [33,1,1], [33,1,8], [47,5,2],
+         [47,3,10], [47,9,8], [42,1,6]],
+    28: [[27,0,3], [41,4,3], [41,4,7]],
+    29: [[7,2,6], [6,2,8], [12,1,13], [44,0,1],
+         [36,4,10], [10,1,1], [19,4,2], [17,4,4]],
+    30: [[34,1,1], [35,1,3]],
+    31: [[11,1,1], [19,1,8], [46,1,3]],
+    32: [[48,2,2], [48,2,3], [48,2,4], [48,3,2], [48,3,3],
+         [48,3,4], [48,4,2], [48,4,3], [48,4,4]],
+    33: [[13,1,1], [13,1,3], [13,1,8], [13,1,10], [48,2,1],
+         [48,2,7], [48,3,6], [48,3,3]],
+    34: [[37,2,2], [32,6,7], [37,10,4], [28,5,3]],
+    35: [[16,2,9], [16,2,2], [16,3,3], [16,3,8], [16,8,9], [16,8,2], [16,1,8],
+         [16,1,3], [12,8,6], [12,9,4], [12,9,8],
+         [15,4,6], [12,7,1], [12,7,11]],
+    36: [[4,3,1], [9,1,7], [8,1,8], [8,1,9],
+         [5,5,4], [6,5,7], [10,1,1], [12,1,2]],
+    37: [[48,3,1], [48,3,2], [48,7,1], [48,5,2], [48,5,3],
+         [48,7,2], [48,9,2], [48,9,3], [48,11,1], [48,11,2]],
+    38: [[43,0,2], [6,2,2], [6,3,5], [6,4,7], [6,2,9], [45,1,10]],
+    39: [[38,1,1], [7,3,4], [7,6,4], [5,3,6], [5,6,6],
+         [6,3,9], [6,6,9], [45,1,11], [12,1,8], [12,1,4]], 
+    40: [[41,5,3], [41,5,7], [41,9,3], [41,9,7],
+         [13,1,1], [13,1,3], [42,1,12]],
+    41: [[4,3,1], [10,3,5], [4,5,1], [10,5,5], [4,7,1],
+         [10,7,5], [12,1,1], [12,1,5]],
+    44: [[46,4,3], [46,4,5], [18,1,1], [19,1,3],
+         [19,1,5], [52,4,7], [14,1,8]],
+    45: [[48,2,1], [48,2,2], [48,3,3], [48,3,4], [48,1,4], [48,1,1]],
+    46: [[10,1,1], [4,1,2], [8,1,7], [9,1,8], [8,1,9], [5,4,3], [7,3,2]],
+    47: [[9,1,1], [9,1,2], [10,1,3], [12,1,7], [5,4,4], [6,4,7], [4,1,8]],
+    48: [[17,4,1], [17,4,2], [17,4,3], [17,4,4], [17,4,5], [17,4,6], [17,4,7],
+         [17,8,1], [17,8,2], [17,8,3], [17,8,4],
+         [17,8,5], [17,8,6], [17,8,7], [14,1,1]],
+    49: [[14,2,2], [14,2,4], [7,5,1], [5,5,3], [48,3,3], [48,3,4]], 
+    50: [[45,4,8], [11,1,1], [13,1,8], [33,2,1], [46,4,6]] 
+    }
+
+checksum = 0
+check_counter = 0
+for key, room_scenery_list in scenery.items():
+    for scenery_item_list in room_scenery_list:
+        checksum += (scenery_item_list[0] * key
+                     + scenery_item_list[1] * (key + 1) 
+                     + scenery_item_list[2] * (key + 2))
+        check_counter += 1
+print(check_counter, "scenery items")
+assert check_counter == 161, "Expected 161 scenery items"
+assert checksum == 200095, "Error in scenery data"
+print("Scenery checksum: " + str(checksum))
+
+for room in range(1, 26):
+    if room != 13:
+        scenery_item = random.choice([16, 28, 29, 30])
+        scenery[room] = [[scenery_item, random.randint(2, 10), random.randint(2, 10)]]
+
+for room_coordinate in range(0, 13):
+    for room_number in [1, 2, 3, 4, 5]:
+        scenery[room_number] += [[31, 0, room_coordinate]]
+    for room_number in [1, 6, 11, 16, 21]:
+        scenery[room_number] += [[31, room_coordinate, 0]]
+    for room_number in [5, 10, 15, 20, 25]:
+        scenery[room_number] += [[31, room_coordinate, 12]]
+
+del scenery[21][-1]
+del scenery[25][-1]
 
 ###############
 ## MAKE MAP  ##
@@ -227,12 +311,13 @@ items_player_may_stand_on = items_player_may_carry + [0, 39, 2, 48]
 
 def get_floor_type():
     if current_room in outdoor_rooms:
-        return 2
+        return 2 # soil
     else:
-        return 0
-    
-def generate_map():
+        return 0 # tiled floor       
 
+def generate_map():
+# This function makes the map for the current room,
+# using room data, scenery data and prop data.
     global room_map, room_width, room_height, room_name, hazard_map
     global top_left_x, top_left_y, wall_transparency_frame
     room_data = GAME_MAP[current_room]
@@ -242,74 +327,80 @@ def generate_map():
 
     floor_type = get_floor_type()
     if current_room in range(1, 21):
-        bottom_edge = 2
-        side_edge = 2
+        bottom_edge = 2 #soil
+        side_edge = 2 #soil
     if current_room in range(21, 26):
-        bottom_edge = 1
-        side_edge = 2
+        bottom_edge = 1 #wall
+        side_edge = 2 #soil
     if current_room > 25:
-        bottom_edge = 1
-        side_edge = 1
+        bottom_edge = 1 #wall
+        side_edge = 1 #wall
 
+    # Create top line of room map.
     room_map=[[side_edge] * room_width]
-
+    # Add middle lines of room map (wall, floor to fill width, wall).
     for y in range(room_height - 2):
-        room_map.append([side_edge] + [floor_type]*(room_width -2) + [side_edge])
-
+        room_map.append([side_edge]
+                        + [floor_type]*(room_width - 2) + [side_edge])
+    # Add bottom line of room map.
     room_map.append([bottom_edge] * room_width)
 
+    # Add doorways.
     middle_row = int(room_height / 2)
     middle_column = int(room_width / 2)
 
-    if room_data[4]:
+    if room_data[4]: # If exit at right of this room
         room_map[middle_row][room_width - 1] = floor_type
         room_map[middle_row+1][room_width - 1] = floor_type
         room_map[middle_row-1][room_width - 1] = floor_type
 
-    if current_room % MAP_WIDTH != 1:
+    if current_room % MAP_WIDTH != 1: # If room is not on left of map
         room_to_left = GAME_MAP[current_room - 1]
-        if room_to_left[4]:
-            room_map[middle_row][0] = floor_type
+        # If room on the left has a right exit, add left exit in this room
+        if room_to_left[4]: 
+            room_map[middle_row][0] = floor_type 
             room_map[middle_row + 1][0] = floor_type
             room_map[middle_row - 1][0] = floor_type
 
-    if room_data[3]:
+    if room_data[3]: # If exit at top of this room
         room_map[0][middle_column] = floor_type
         room_map[0][middle_column + 1] = floor_type
         room_map[0][middle_column - 1] = floor_type
 
-    if current_room <= MAP_SIZE - MAP_WIDTH:
+    if current_room <= MAP_SIZE - MAP_WIDTH: # If room is not on bottom row
         room_below = GAME_MAP[current_room+MAP_WIDTH]
-        if room_below[3]:
-            room_map[room_height-1][middle_column] = floor_type
+        # If room below has a top exit, add exit at bottom of this one
+        if room_below[3]: 
+            room_map[room_height-1][middle_column] = floor_type 
             room_map[room_height-1][middle_column + 1] = floor_type
             room_map[room_height-1][middle_column - 1] = floor_type
 
-
 ###############
 ## EXPLORER  ##
-###############
+############### 
 
 def draw():
     global room_height, room_width, room_map
     generate_map()
     screen.clear()
     room_map[2][4] = 7
-    room_map[2][6] = 48
-    room_map[1][1] = 62
+    room_map[2][6] = 6
+    room_map[1][1] = 8
     room_map[1][2] = 9
-    room_map[1][8] = 29
-    room_map[1][9] = 10
+    room_map[1][8] = 12
+    room_map[1][9] = 9
 
     for y in range(room_height):
         for x in range(room_width):
             image_to_draw = objects[room_map[y][x]][0]
-            screen.blit(image_to_draw, (top_left_x + (x*30), top_left_y + (y*30) - image_to_draw.get_height()))
-            
+            screen.blit(image_to_draw,
+                (top_left_x + (x*30),
+                 top_left_y + (y*30) - image_to_draw.get_height()))
+
 def movement():
     global current_room
     old_room = current_room
-
+    
     if keyboard.left:
         current_room -= 1
     if keyboard.right:
@@ -327,4 +418,5 @@ def movement():
     if current_room != old_room:
         print("Entering room:" + str(current_room))
 
-clock.schedule_interval(movement, 0.1)
+clock.schedule_interval(movement, 0.08)
+
